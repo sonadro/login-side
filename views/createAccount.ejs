@@ -1,0 +1,26 @@
+<%- include('partials/header'); -%>
+
+    <h1>Lag bruker</h1>
+    <form class="new-user">
+        <!-- mail -->
+        <label for="email">Mailaddresse:</label>
+        <input id="email" name="email" type="text"><br><br>
+
+        <!-- brukernavn -->
+        <label for="brukernavn">Brukernavn:</label>
+        <input id="brukernavn" name="brukernavn" type="text"><br><br>
+
+        <!-- passord -->
+        <label for="passord">Passord:</label>
+        <input id="passord" name="passord" type="text"><br><br>
+
+        <!-- gjenta passord -->
+        <label for="gjenta">Gjenta passord:</label>
+        <input id="gjenta" name="gjenta" type="text"><br><br>
+
+        <button type="submit">Submit</button><br><br>
+    </form>
+
+    <!-- js -->
+    <script src="js/create.js" defer></script>
+<%- include('partials/footer'); -%>
