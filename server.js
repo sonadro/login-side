@@ -1,5 +1,9 @@
-// get express & create server
+// packages
 const express = require('express');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+
+// create server
 const server = express();
 
 // variables
@@ -20,6 +24,20 @@ server.get('/hjem', (req, res) => res.render('index'));
 server.get('/glemt-passord', (req, res) => res.render('newPassword'));
 server.get('/logg-inn', (req, res) => res.render('login'));
 server.get('/lag-bruker', (req, res) => res.render('createAccount'));
+
+// encrypt
+server.post('/encrypt', (req, res) => {
+    const {parcel} = req.body;
+
+    // encrypt password
+    if (parcel) {
+        bcrypt.hash(parcel, saltRounds, (err, hash) => {
+            res.status(200).send({status: 'received', pass: hash});
+        });
+    } else {
+        res.status(400).send({status: 'failed'});
+    }
+});
 
 // 404
 server.use((req, res) => res.status(404).render('404'));
