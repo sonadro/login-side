@@ -2,6 +2,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const nodemailer = require('nodemailer');
 
 // create server
 const server = express();
@@ -55,6 +56,43 @@ server.post('/login-encrypt', (req, res) => {
     } else {
         res.status(400).send({ status: 'failed' });
     }
+});
+
+// forgot password
+server.post('/forgot', (req, res) => {
+    const { uName, uEmail } = req.body;
+    const { pass, clientId, clientSecret, refreshToken } = require('./config.json');
+
+    // transporter account
+    nodemailer.createTestAccount((err, account) => {
+        const transporter = nodemailer.createTransport({
+            host: 'smtp.sendgrid.net',
+            service: 'gmail',
+            port: 465,
+            auth: {
+                user: account.user,
+                pass: account.pass
+            }
+        });
+        // settings
+        const mailOptions = {
+            from: 'sondreNodemailer@gmail.com',
+            to: uEmail,
+            subject: 'Glemt passord på login-side',
+            text: 'Trykk her.'
+        }
+    
+        // send mail
+        transporter.sendMail(mailOptions, function(error, info) {
+            if (error) {
+                console.error(error);
+                res.status(400).send({ status: 'failed' });
+            } else {
+                console.log(`Email sent: ` + info.response);
+                res.status(200).send({ status: 'success'});
+            };
+        });
+    });
 });
 
 // 404
