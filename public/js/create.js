@@ -12,7 +12,7 @@ async function encrypt(input) {
         },
         body: JSON.stringify({
             parcel: input
-        })
+        }),
     });
     const data = await(res.json());
 
@@ -27,8 +27,8 @@ async function register(user) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            parcel: user.password
-        })
+            userPw: user.password
+        }),
     });
 
     // store hashed password in user object
@@ -37,6 +37,7 @@ async function register(user) {
 
     let mailExists = false;
     let userExists = false;
+    let matching = false;
     db.collection('brukere').get().then(snapshot => {
         snapshot.docs.forEach(doc => {
             const data = doc.data();
@@ -44,12 +45,12 @@ async function register(user) {
             if (user.username === data.username) {
                 userExists = true;
                 console.log(data, 'exists');
-            }
+            };
 
             if (user.email === data.email) {
                 mailExists = true;
                 console.log(data, 'exists');
-            }
+            };
             
         });
 
@@ -91,12 +92,15 @@ createUserForm.addEventListener('submit', e => {
     let password = createUserForm.passord.value;
     let repeatPw = createUserForm.gjenta.value;
 
-    let user = {
-        email,
-        username,
-        password,
-        repeatPw
-    }
+    if (password === repeatPw) {
+        let user = {
+            email,
+            username,
+            password
+        };
 
-    register(user);
+        register(user);
+    } else {
+        console.log('Your passwords aren\'t matching');
+    }
 });

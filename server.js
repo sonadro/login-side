@@ -27,15 +27,33 @@ server.get('/lag-bruker', (req, res) => res.render('createAccount'));
 
 // encrypt
 server.post('/encrypt', (req, res) => {
-    const {parcel} = req.body;
+    const { userPw } = req.body;
 
     // encrypt password
-    if (parcel) {
-        bcrypt.hash(parcel, saltRounds, (err, hash) => {
-            res.status(200).send({status: 'received', pass: hash});
+    if (userPw) {
+        bcrypt.hash(userPw, saltRounds, (err, hash) => {
+            res.status(200).send({ status: 'received', pass: hash });
         });
     } else {
-        res.status(400).send({status: 'failed'});
+        res.status(400).send({ status: 'failed' });
+    }
+});
+
+// login-encrypt
+server.post('/login-encrypt', (req, res) => {
+    const { userPw, dbUserPw } = req.body;
+
+    // encrypt password
+    if (userPw) {
+        bcrypt.compare(userPw, dbUserPw, (err, match) => {
+            if (err) {
+                console.error(err);
+            }
+            
+            res.status(200).send({ status: 'received', match});
+        });
+    } else {
+        res.status(400).send({ status: 'failed' });
     }
 });
 
