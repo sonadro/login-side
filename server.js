@@ -63,23 +63,23 @@ server.post('/login-encrypt', (req, res) => {
 // forgot password
 server.post('/forgot', (req, res) => {
     const { uEmail } = req.body;
-    const { pass } = require('./config.json');
+    const { pass, user, host } = require('./config.json');
 
     // transporter account
     const transporter = nodemailer.createTransport({
-        host: 'smtp.sendgrid.net',
+        host,
         service: 'gmail',
         port: 587,
         secure: false,
         auth: {
-            user: 'sondreNodemailer@gmail.com',
+            user,
             pass: pass
         },
     });
 
     // settings
     const mailOptions = {
-        from: 'sondreNodemailer@gmail.com',
+        from: user,
         to: uEmail,
         subject: 'Glemt passord på login-side',
         text: 'Trykk her.'
