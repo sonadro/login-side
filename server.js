@@ -26,6 +26,7 @@ server.get('/glemt-passord', (req, res) => res.render('newPassword'));
 server.get('/logg-inn', (req, res) => res.render('login'));
 server.get('/lag-bruker', (req, res) => res.render('createAccount'));
 server.get('/bruker', (req, res) => res.render('bruker'));
+server.get('/nytt-passord', (req, res) => res.render('resetPassword'));
 
 // encrypt
 server.post('/create-encrypt', (req, res) => {
@@ -62,7 +63,7 @@ server.post('/login-encrypt', (req, res) => {
 
 // forgot password
 server.post('/forgot', (req, res) => {
-    const { uEmail } = req.body;
+    const { uEmail, id } = req.body;
     const { pass, user, host } = require('./config.json');
 
     // transporter account
@@ -81,8 +82,10 @@ server.post('/forgot', (req, res) => {
     const mailOptions = {
         from: user,
         to: uEmail,
-        subject: 'Glemt passord på login-side',
-        text: 'Trykk her.'
+        subject: 'Reset passord på login-side',
+        text: `Trykk på lenken under for å resette passordet ditt:
+            \nhttp://localhost/nytt-passord?id=${id}\n
+            \nOBS! Hvis det ikke var du som sendte denne forespørselen, så kan du ignorere denne meldingen.`
     }
 
     // send mail
@@ -95,6 +98,23 @@ server.post('/forgot', (req, res) => {
             res.status(200).send({ status: 'success'});
         };
     });
+});
+
+// reset password
+server.post('/reset-encrypt', (req, res) => {
+    const { password } = req.body;
+
+    if (password) {
+        bcrypt.hash(password, saltRounds, (err, hash) => {
+            if (err) {
+                console.error(err);
+            };
+
+            res.status(200).send({ status: 'success', hash});
+        });
+    } else {
+        res.status(400).send({ status: 'failed'});
+    }
 });
 
 // 404

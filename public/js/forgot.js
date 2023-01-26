@@ -4,7 +4,7 @@ const db = firebase.firestore();
 // DOM
 const newPasswordForm = document.querySelector('.newPassword');
 
-async function sendToBackend(uName, uEmail) {
+async function sendToBackend(uEmail, id) {
     // send data
     const res = await fetch('http://localhost/forgot', {
         method: 'POST',
@@ -12,8 +12,8 @@ async function sendToBackend(uName, uEmail) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            uName,
-            uEmail
+            uEmail,
+            id
         }),
     });
 }
@@ -30,6 +30,7 @@ newPasswordForm.addEventListener('submit', e => {
     db.collection('brukere').get().then(snapshot => {
         snapshot.docs.forEach(doc => {
             const data = doc.data();
+            const id = doc.id;
 
             if (email === data.email) {
                 console.log('email matches');
@@ -38,7 +39,7 @@ newPasswordForm.addEventListener('submit', e => {
                     console.log('username matches');
 
                     // send mail
-                    sendToBackend(username, email);
+                    sendToBackend(email, id);
                 };
             };
         });
