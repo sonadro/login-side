@@ -25,15 +25,17 @@ server.get('/hjem', (req, res) => res.render('index'));
 server.get('/glemt-passord', (req, res) => res.render('newPassword'));
 server.get('/logg-inn', (req, res) => res.render('login'));
 server.get('/lag-bruker', (req, res) => res.render('createAccount'));
+server.get('/bruker', (req, res) => res.render('bruker'));
 
 // encrypt
-server.post('/encrypt', (req, res) => {
+server.post('/create-encrypt', (req, res) => {
     const { userPw } = req.body;
 
     // encrypt password
     if (userPw) {
+        // password
         bcrypt.hash(userPw, saltRounds, (err, hash) => {
-            res.status(200).send({ status: 'received', pass: hash });
+            res.status(200).send({ status: 'success', password: hash });
         });
     } else {
         res.status(400).send({ status: 'failed' });
@@ -60,38 +62,38 @@ server.post('/login-encrypt', (req, res) => {
 
 // forgot password
 server.post('/forgot', (req, res) => {
-    const { uName, uEmail } = req.body;
-    const { pass, clientId, clientSecret, refreshToken } = require('./config.json');
+    const { uEmail } = req.body;
+    const { pass } = require('./config.json');
 
     // transporter account
-    nodemailer.createTestAccount((err, account) => {
-        const transporter = nodemailer.createTransport({
-            host: 'smtp.sendgrid.net',
-            service: 'gmail',
-            port: 465,
-            auth: {
-                user: account.user,
-                pass: account.pass
-            }
-        });
-        // settings
-        const mailOptions = {
-            from: 'sondreNodemailer@gmail.com',
-            to: uEmail,
-            subject: 'Glemt passord på login-side',
-            text: 'Trykk her.'
-        }
-    
-        // send mail
-        transporter.sendMail(mailOptions, function(error, info) {
-            if (error) {
-                console.error(error);
-                res.status(400).send({ status: 'failed' });
-            } else {
-                console.log(`Email sent: ` + info.response);
-                res.status(200).send({ status: 'success'});
-            };
-        });
+    const transporter = nodemailer.createTransport({
+        host: 'smtp.sendgrid.net',
+        service: 'gmail',
+        port: 587,
+        secure: false,
+        auth: {
+            user: 'sondreNodemailer@gmail.com',
+            pass: pass
+        },
+    });
+
+    // settings
+    const mailOptions = {
+        from: 'sondreNodemailer@gmail.com',
+        to: uEmail,
+        subject: 'Glemt passord på login-side',
+        text: 'Trykk her.'
+    }
+
+    // send mail
+    transporter.sendMail(mailOptions, function(error, info) {
+        if (error) {
+            console.error(error);
+            res.status(400).send({ status: 'failed' });
+        } else {
+            console.log(`Email sent: ` + info.response);
+            res.status(200).send({ status: 'success'});
+        };
     });
 });
 

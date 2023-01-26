@@ -21,23 +21,27 @@ async function encrypt(input) {
 
 async function register(user) {
     // hash password
-    const res = await fetch('http://localhost/encrypt', {
+    const res = await fetch('http://localhost/create-encrypt', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            userPw: user.password
+            userPw: user.password,
         }),
     });
 
     // store hashed password in user object
     const data = await(res.json());
-    user.password = data.pass;
+    
+    const uploadUser = {
+        email: user.email,
+        username: user.username,
+        password: data.password
+    }
 
     let mailExists = false;
     let userExists = false;
-    let matching = false;
     db.collection('brukere').get().then(snapshot => {
         snapshot.docs.forEach(doc => {
             const data = doc.data();
@@ -69,11 +73,6 @@ async function register(user) {
         }
     
         if (!mailExists && !userExists) {
-            const uploadUser = {
-                email: user.email,
-                username: user.username,
-                password: user.password
-            }
             db.collection('brukere').add(uploadUser).then(() => {
                 console.log('added user:', user);
             }).catch(err => console.error(err));
@@ -92,7 +91,9 @@ createUserForm.addEventListener('submit', e => {
     let password = createUserForm.passord.value;
     let repeatPw = createUserForm.gjenta.value;
 
-    if (password === repeatPw) {
+    if (password.length < 2) {
+        console.log('Invalid password');
+    } else if (password === repeatPw) {
         let user = {
             email,
             username,

@@ -30,7 +30,6 @@ newPasswordForm.addEventListener('submit', e => {
     db.collection('brukere').get().then(snapshot => {
         snapshot.docs.forEach(doc => {
             const data = doc.data();
-            // console.log(data);
 
             if (email === data.email) {
                 console.log('email matches');

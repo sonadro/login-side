@@ -32,6 +32,7 @@ async function sendToBackend(userPw, dbUserPw) {
 
     if (data.match) {
         console.log('Du har nå logget inn.');
+        location.href = 'http://localhost/bruker';
     } else {
         console.log('Feil passord.');
     }
