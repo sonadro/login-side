@@ -15,6 +15,13 @@ form.addEventListener('submit', e => {
 });
 
 async function sendToBackend(password) {
+    // get URL values
+    const url = window.location.search;
+    const args = url.slice(1).split('&');
+    
+    const token = args[1].slice(6);
+    const secret = args[2].slice(7);
+
     // hash password
     const res = await fetch('http://localhost/reset-encrypt', {
         method: 'POST',
@@ -22,7 +29,9 @@ async function sendToBackend(password) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            password
+            password,
+            secret,
+            token
         }),
     });
 
@@ -30,16 +39,13 @@ async function sendToBackend(password) {
     const data = await(res.json());
 
     if (data.status === 'success') {
-        resetPassword(data.hash);
+        resetPassword(data.hash, data.id);
     } else {
         console.log(data);
     }
 }
 
-function resetPassword(password) {
-    const url = window.location.href;
-    const id = url.slice(url.indexOf('?id=') + 4);
-
+function resetPassword(password, id) {
     let dbUser;
     db.collection('brukere').get().then(snapshot => {
         snapshot.docs.forEach(doc => {

@@ -3,6 +3,8 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const nodemailer = require('nodemailer');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 // create server
 const server = express();
@@ -66,6 +68,15 @@ server.post('/forgot', (req, res) => {
     const { uEmail, id } = req.body;
     const { pass, user, host } = require('./config.json');
 
+    // create jwt
+    const payload = {
+        email: uEmail,
+        userId: id
+    }
+
+    const secret = crypto.randomBytes(256).toString('hex');
+    const token = jwt.sign(payload, secret, { expiresIn:  '10m'});
+
     // transporter account
     const transporter = nodemailer.createTransport({
         host,
@@ -84,7 +95,7 @@ server.post('/forgot', (req, res) => {
         to: uEmail,
         subject: 'Reset passord på login-side',
         text: `Trykk på lenken under for å resette passordet ditt:
-            \nhttp://localhost/nytt-passord?id=${id}\n
+            \nhttp://localhost/nytt-passord?id=${id}&token=${token}&secret=${secret}\n
             \nOBS! Hvis det ikke var du som sendte denne forespørselen, så kan du ignorere denne meldingen.`
     }
 
@@ -102,16 +113,28 @@ server.post('/forgot', (req, res) => {
 
 // reset password
 server.post('/reset-encrypt', (req, res) => {
-    const { password } = req.body;
+    const { password, token, secret } = req.body;    
 
     if (password) {
-        bcrypt.hash(password, saltRounds, (err, hash) => {
-            if (err) {
-                console.error(err);
-            };
+        // jwt verify
+        try {
+            const decoded = jwt.verify(token, secret);
 
-            res.status(200).send({ status: 'success', hash});
-        });
+            // send pw
+            bcrypt.hash(password, saltRounds, (err, hash) => {
+                if (err) {
+                    console.error(err);
+                };
+    
+                res.status(200).send({
+                    status: 'success',
+                    id: decoded.userId,
+                    hash
+                });
+            });
+        } catch (error) {
+            console.error(error.message);
+        }
     } else {
         res.status(400).send({ status: 'failed'});
     }
