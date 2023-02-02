@@ -95,7 +95,7 @@ server.post('/forgot', (req, res) => {
         to: uEmail,
         subject: 'Reset passord på login-side',
         text: `Trykk på lenken under for å resette passordet ditt:
-            \nhttp://localhost/nytt-passord?id=${id}&token=${token}&secret=${secret}\n
+            \nhttp://localhost/nytt-passord?token=${token}&secret=${secret}\n
             \nOBS! Hvis det ikke var du som sendte denne forespørselen, så kan du ignorere denne meldingen.`
     }
 
@@ -106,7 +106,7 @@ server.post('/forgot', (req, res) => {
             res.status(400).send({ status: 'failed' });
         } else {
             console.log(`Email sent: ` + info.response);
-            res.status(200).send({ status: 'success'});
+            res.status(200).send({ status: 'success', token });
         };
     });
 });
@@ -128,7 +128,6 @@ server.post('/reset-encrypt', (req, res) => {
     
                 res.status(200).send({
                     status: 'success',
-                    id: decoded.userId,
                     hash
                 });
             });

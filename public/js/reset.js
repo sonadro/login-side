@@ -19,10 +19,10 @@ async function sendToBackend(password) {
     const url = window.location.search;
     const args = url.slice(1).split('&');
     
-    const token = args[1].slice(6);
-    const secret = args[2].slice(7);
+    const token = args[0].slice(6);
+    const secret = args[1].slice(7);
 
-    // hash password
+    // hash password & verify token
     const res = await fetch('http://localhost/reset-encrypt', {
         method: 'POST',
         headers: {
@@ -30,8 +30,8 @@ async function sendToBackend(password) {
         },
         body: JSON.stringify({
             password,
-            secret,
-            token
+            token,
+            secret
         }),
     });
 
@@ -39,21 +39,23 @@ async function sendToBackend(password) {
     const data = await(res.json());
 
     if (data.status === 'success') {
-        resetPassword(data.hash, data.id);
+        resetPassword(data.hash, token);
     } else {
         console.log(data);
     }
 }
 
-function resetPassword(password, id) {
+function resetPassword(password, token) {
     let dbUser;
+    let id;
     db.collection('brukere').get().then(snapshot => {
         snapshot.docs.forEach(doc => {
             const data = doc.data();
-            const docId = doc.id;
 
-            if (id === docId) {
+            if (data.token === token) {
                 dbUser = data;
+                id = doc.id;
+                console.log('User found');
             }
         });
         
@@ -61,11 +63,12 @@ function resetPassword(password, id) {
             let uploadUser = dbUser;
 
             uploadUser.password = password;
+            uploadUser.token = '';
 
             db.collection('brukere').doc(id).set(uploadUser);
             console.log('reset password');
         } else {
-            return 'Error: Couldn\'t find user.';
+            console.error('Couldn\'t find token.');
         }
     })
 }

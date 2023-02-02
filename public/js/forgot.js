@@ -16,6 +16,27 @@ async function sendToBackend(uEmail, id) {
             id
         }),
     });
+
+    const data = await(res.json());
+
+    if (data.status === 'success') {
+        db.collection('brukere').get().then(snapshot => {
+            snapshot.docs.forEach(doc => {
+                const docData = doc.data();
+
+                if (uEmail === docData.email) {
+                    docData.token = data.token;
+
+                    try {
+                        db.collection('brukere').doc(id).set(docData);
+                        console.log('token upload');
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }
+            })
+        })
+    }
 }
 
 // on submit
