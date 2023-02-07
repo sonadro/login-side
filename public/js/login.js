@@ -1,17 +1,5 @@
-// db connection
-const db = firebase.firestore();
-
 // DOM
 const loginForm = document.querySelector('.login');
-
-// sleep function
-const sleep = function(ms) {
-    const startTime = Date.now();
-    let newTime = Date.now();
-    while (newTime - startTime < ms) {
-        newTime = Date.now();
-    };
-};
 
 // send to backend
 async function sendToBackend(userPw, dbUserPw) {

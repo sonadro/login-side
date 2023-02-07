@@ -3,3 +3,8 @@ node_modules/
 
 # private files
 config.json
+dbConfig.json
+.env*
+.flaskenv*
+!.env.project
+!.env.vault

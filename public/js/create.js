@@ -1,6 +1,3 @@
-// db connection
-const db = firebase.firestore();
-
 // DOM
 const createUserForm = document.querySelector('.new-user');
 

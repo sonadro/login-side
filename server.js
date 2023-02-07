@@ -5,6 +5,7 @@ const saltRounds = 10;
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+require('dotenv').config();
 
 // create server
 const server = express();
@@ -136,6 +137,29 @@ server.post('/reset-encrypt', (req, res) => {
         }
     } else {
         res.status(400).send({ status: 'failed'});
+    }
+});
+
+// get database
+server.post('/request-db', (req, res) => {
+    const apiKey = process.env.API_KEY;
+    const authDomain = process.env.AUTH_DOMAIN;
+    const databaseURL = process.env.DATABASE_URL;
+    const projectId = process.env.PROJECT_ID;
+    const storageBucket = process.env.STORAGE_BUCKET;
+    const messagingSenderId = process.env.MESSAGING_SENDER_ID;
+
+    if (apiKey && authDomain && databaseURL && projectId && storageBucket && messagingSenderId) {
+        res.status(200).send({
+            apiKey,
+            authDomain,
+            databaseURL,
+            projectId,
+            storageBucket,
+            messagingSenderId
+        });
+    } else {
+        res.status(400).send({ err: 'Couldn\'t get database credentials. '});
     }
 });
 

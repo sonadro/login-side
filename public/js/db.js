@@ -1,9 +1,44 @@
-var config = {
-    apiKey: "AIzaSyB3Wnnl-ENv0dGBLXTARFtpC7TJQk7403M",
-    authDomain: "nettbutikk-b8a72.firebaseapp.com",
-    databaseURL: "https://nettbutikk-b8a72.firebaseio.com",
-    projectId: "nettbutikk-b8a72",
-    storageBucket: "nettbutikk-b8a72.appspot.com",
-    messagingSenderId: "1051366519671"
-};
-firebase.initializeApp(config);
+// sleep
+const sleep = function(ms) {
+    const oldDate = Date.now();
+    let newDate = Date.now();
+
+    while(newDate - oldDate < ms) {
+        newDate = Date.now();
+    }
+}
+
+// get values
+const getFromBackend = async function() {
+    const res = await fetch('http://localhost/request-db', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            parcel: 'test',
+        }),
+    });
+
+    // store hashed password
+    const data = await(res.json());
+
+    if (data.err) {
+        console.error(data.err);
+    }
+
+    const config = {
+        apiKey: data.apiKey,
+        authDomain: data.authDomain,
+        databaseURL: data.databaseURL,
+        projectId: data.projectId,
+        storageBucket: data.storageBucket,
+        messagingSenderId: data.messagingSenderId
+    };
+    
+    firebase.initializeApp(config);
+
+    globalThis.db = firebase.firestore();
+}
+
+getFromBackend();
