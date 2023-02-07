@@ -1,13 +1,3 @@
-// sleep
-const sleep = function(ms) {
-    const oldDate = Date.now();
-    let newDate = Date.now();
-
-    while(newDate - oldDate < ms) {
-        newDate = Date.now();
-    }
-}
-
 // get values
 const getFromBackend = async function() {
     const res = await fetch('http://localhost/request-db', {
